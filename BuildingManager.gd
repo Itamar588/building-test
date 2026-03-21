@@ -15,7 +15,6 @@ func _ready():
 		ghost_block.material_override = ghost_material
 
 	add_child(ghost_block)
-
 	_update_ghost_mesh()
 
 func _unhandled_input(event: InputEvent):
@@ -58,7 +57,8 @@ func _update_ghost_mesh():
 func _process(_delta):
 
 	var result = perform_raycast()
-
+	if Input.is_action_just_pressed("delete"):
+		delete_block(result)
 	update_ghost(result)
 
 	if Input.is_action_just_pressed("ui_accept"):
@@ -80,7 +80,18 @@ func perform_raycast() -> Dictionary:
 	var query = PhysicsRayQueryParameters3D.create(origin, end)
 	query.collision_mask = 2
 
-	return space_state.intersect_ray(query)
+	var result = space_state.intersect_ray(query)
+
+	if result and result.collider is BaseBlock:
+
+		var body : BaseBlock = result.collider
+		var shape_id : int = result.shape
+
+		var real_block = body.get_block_from_shape(shape_id)
+
+		result["block"] = real_block
+
+	return result
 
 # --- Snap any vector to the closest of the 6 grid directions ---
 func snap_to_axis(v: Vector3) -> Vector3:
@@ -114,9 +125,8 @@ func build_grid_basis(master: BaseBlock, local_normal: Vector3) -> Basis:
 
 func update_ghost(result):
 
-	if result and result.collider is BaseBlock:
-
-		var master_obj : BaseBlock = result.collider
+	if result and result.has("block"):
+		var master_obj : BaseBlock = result.block
 
 		var local_hit_pos = master_obj.to_local(result.position)
 
@@ -193,3 +203,17 @@ func place_block(result: Dictionary):
 		g_node.set_meta("physical_block", new_block)
 
 		new_block.set_meta("logic_node", g_node)
+func delete_block(result):
+
+	if not result or not result.has("block"):
+		return
+
+	var block : BaseBlock = result.block
+	var master = block.get_master_body()
+
+	# If it has a master, detach normally
+	if master:
+		block.disconnect_self()
+	else:
+		# This is the core block, delete the whole assembly
+		block.queue_free()
