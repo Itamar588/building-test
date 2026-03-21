@@ -1,0 +1,18 @@
+[gd_scene format=3 uid="uid://dvmo5dkj5y5q8"]
+
+[ext_resource type="Script" uid="uid://d30j4qv2k3mky" path="res://DirectionalBlock.gd" id="1_5yc07"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_5yc07"]
+size = Vector3(0.6, 0.6, 1)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_a185h"]
+
+[node name="DirectionalBlock" type="RigidBody3D" unique_id=839975877]
+script = ExtResource("1_5yc07")
+metadata/_custom_type_script = "uid://d30j4qv2k3mky"
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=144533455]
+mesh = SubResource("BoxMesh_5yc07")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1433548686]
+shape = SubResource("BoxShape3D_a185h")

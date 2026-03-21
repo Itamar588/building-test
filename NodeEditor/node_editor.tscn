@@ -1,0 +1,199 @@
+[gd_scene format=3 uid="uid://hg3lc36d4gnw"]
+
+[ext_resource type="Script" uid="uid://bkje20fh2voax" path="res://NodeEditor/node_editor.gd" id="1_2s2fu"]
+[ext_resource type="Script" uid="uid://do325r1ged8q5" path="res://NodeEditor/NodePallete.gd" id="1_ne7bg"]
+[ext_resource type="Script" uid="uid://bo0myrs7y5ipk" path="res://NodeEditor/NodeDefinition.gd" id="3_vifmx"]
+
+[sub_resource type="Resource" id="Resource_vifmx"]
+script = ExtResource("3_vifmx")
+name = "Add"
+in_ports = 2
+out_ports = 1
+in_port_labels = Array[String](["int", "int"])
+out_port_labels = Array[String](["int"])
+code = "inputs[0] + inputs[1]"
+metadata/_custom_type_script = "uid://bo0myrs7y5ipk"
+
+[sub_resource type="Resource" id="Resource_qchtu"]
+script = ExtResource("3_vifmx")
+name = "Printer"
+in_ports = 1
+code = "print(inputs[0])"
+metadata/_custom_type_script = "uid://bo0myrs7y5ipk"
+
+[sub_resource type="Resource" id="Resource_i5tdh"]
+script = ExtResource("3_vifmx")
+name = "Int"
+out_ports = 1
+code = "internal_value"
+has_data = true
+data_type = 1
+metadata/_custom_type_script = "uid://bo0myrs7y5ipk"
+
+[sub_resource type="Resource" id="Resource_kc1hq"]
+script = ExtResource("3_vifmx")
+name = "Bool"
+out_ports = 1
+code = "internal_value"
+has_data = true
+data_type = 3
+metadata/_custom_type_script = "uid://bo0myrs7y5ipk"
+
+[sub_resource type="Resource" id="Resource_skfis"]
+script = ExtResource("3_vifmx")
+name = "Float"
+out_ports = 1
+code = "internal_value"
+has_data = true
+metadata/_custom_type_script = "uid://bo0myrs7y5ipk"
+
+[sub_resource type="Resource" id="Resource_ssbin"]
+script = ExtResource("3_vifmx")
+name = "Threshold"
+in_ports = 1
+out_ports = 1
+code = "inputs[0] > internal_value"
+has_data = true
+metadata/_custom_type_script = "uid://bo0myrs7y5ipk"
+
+[sub_resource type="Resource" id="Resource_eyaka"]
+script = ExtResource("3_vifmx")
+name = "Inverter"
+in_ports = 1
+out_ports = 1
+code = "not inputs[0]"
+metadata/_custom_type_script = "uid://bo0myrs7y5ipk"
+
+[sub_resource type="Resource" id="Resource_qb13b"]
+script = ExtResource("3_vifmx")
+name = "And"
+in_ports = 2
+out_ports = 1
+code = "bool(inputs[0]) and bool(inputs[1])"
+metadata/_custom_type_script = "uid://bo0myrs7y5ipk"
+
+[sub_resource type="GDScript" id="GDScript_vifmx"]
+script/source = "extends Node
+
+@export var graph: GraphEdit  # assign your GraphEdit node here
+
+# Called when the scene starts
+func _ready():
+	# Connect signals for all current nodes
+	for node in graph.get_children():
+		if node is GraphNode:
+			connect_node_signals(node)
+
+# Connect signals to trigger evaluation
+func connect_node_signals(node: GraphNode):
+	# If the node has a SpinBox / LineEdit / CheckBox, connect changes
+	for child in node.get_children():
+		if child is SpinBox:
+			child.value_changed.connect(func(v): on_node_value_changed(node))
+		elif child is LineEdit:
+			child.text_changed.connect(func(t): on_node_value_changed(node))
+		elif child is CheckBox:
+			child.toggled.connect(func(b): on_node_value_changed(node))
+
+# Called when a node’s internal value changes
+func on_node_value_changed(node: GraphNode):
+	evaluate_node(node)
+	propagate_to_downstream(node)
+
+# Evaluate a single node
+func evaluate_node(node: GraphNode):
+	var code = node.get_meta(\"logic_code\", \"\")
+	var internal = node.get_meta(\"internal_value\", null)
+	
+	# For Constant nodes (or any node just returning internal_value)
+	if code.strip_edges().begins_with(\"return node.meta\"):
+		node.set_meta(\"last_result\", internal)
+		return internal
+
+	# For other nodes, use Godot Expression to evaluate code
+	if code != \"\":
+		var inputs = get_node_inputs(node)
+		var expr = Expression.new()
+		var err = expr.parse(code, [\"inputs\", \"internal_value\"])
+		if err == OK:
+			var result = expr.execute([inputs, internal], null, false)
+			node.set_meta(\"last_result\", result)
+			return result
+		else:
+			push_error(\"Failed to parse node logic on \" + node.name)
+	
+	return null
+
+# Collect the values from nodes connected to this node's input slots
+func get_node_inputs(node: GraphNode) -> Array:
+	var inputs = []
+	for i in range(node.get_connection_input_count()):
+		for conn in graph.get_connection_list():
+			if conn.to_node == node.name and conn.to_port == i:
+				var from_node = graph.get_node(conn.from_node)
+				if from_node and from_node.has_meta(\"last_result\"):
+					inputs.append(from_node.get_meta(\"last_result\"))
+				else:
+					inputs.append(null)
+	return inputs
+
+# Propagate evaluation to all nodes downstream
+func propagate_to_downstream(node: GraphNode):
+	for conn in graph.get_connection_list():
+		if conn.from_node == node.name:
+			var target_node = graph.get_node(conn.to_node)
+			if target_node:
+				evaluate_node(target_node)
+				propagate_to_downstream(target_node)
+"
+
+[node name="NodeEditor" type="Control" unique_id=1662998644]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+focus_mode = 1
+
+[node name="GraphEdit" type="GraphEdit" parent="." unique_id=1395051901]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_2s2fu")
+
+[node name="PanelContainer" type="PanelContainer" parent="." unique_id=812171744 node_paths=PackedStringArray("search_bar", "node_list")]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_top = -284.5
+offset_right = 144.0
+offset_bottom = 320.5
+grow_vertical = 2
+focus_mode = 2
+script = ExtResource("1_ne7bg")
+search_bar = NodePath("VBoxContainer/LineEdit")
+node_list = NodePath("VBoxContainer/ScrollContainer/VBoxContainer")
+node_definitions = Array[ExtResource("3_vifmx")]([SubResource("Resource_vifmx"), SubResource("Resource_qchtu"), SubResource("Resource_i5tdh"), SubResource("Resource_kc1hq"), SubResource("Resource_skfis"), SubResource("Resource_ssbin"), SubResource("Resource_eyaka"), SubResource("Resource_qb13b")])
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer" unique_id=879115072]
+layout_mode = 2
+size_flags_stretch_ratio = 20.0
+
+[node name="LineEdit" type="LineEdit" parent="PanelContainer/VBoxContainer" unique_id=458770282]
+layout_mode = 2
+
+[node name="ScrollContainer" type="ScrollContainer" parent="PanelContainer/VBoxContainer" unique_id=12187254]
+custom_minimum_size = Vector2(0.925, 570)
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/VBoxContainer/ScrollContainer" unique_id=276491473]
+layout_mode = 2
+
+[node name="Node" type="Node" parent="." unique_id=800309106 node_paths=PackedStringArray("graph")]
+script = SubResource("GDScript_vifmx")
+graph = NodePath("../GraphEdit")

@@ -1,0 +1,30 @@
+[gd_scene format=3 uid="uid://bv2o60q60m40b"]
+
+[ext_resource type="Script" uid="uid://db5eimbgglu5y" path="res://Primitives/Sensors/DistanceSensor.gd" id="1_v3ifb"]
+[ext_resource type="Script" uid="uid://bo0myrs7y5ipk" path="res://NodeEditor/NodeDefinition.gd" id="2_xo1xv"]
+
+[sub_resource type="Resource" id="Resource_xo1xv"]
+script = ExtResource("2_xo1xv")
+name = "DistanceSensor"
+in_ports = 1
+out_ports = 1
+in_port_labels = Array[String](["Range"])
+out_port_labels = Array[String](["Distance"])
+code = "last_result"
+metadata/_custom_type_script = "uid://bo0myrs7y5ipk"
+
+[sub_resource type="BoxMesh" id="BoxMesh_v3ifb"]
+size = Vector3(0.6, 0.6, 1)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_xo1xv"]
+
+[node name="DistanceSensorBlock" type="RigidBody3D" unique_id=253053682]
+script = ExtResource("1_v3ifb")
+node_data = SubResource("Resource_xo1xv")
+metadata/_custom_type_script = "uid://db5eimbgglu5y"
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1182763143]
+mesh = SubResource("BoxMesh_v3ifb")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1538621451]
+shape = SubResource("BoxShape3D_xo1xv")

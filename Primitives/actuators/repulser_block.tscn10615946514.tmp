@@ -1,0 +1,34 @@
+[gd_scene format=3 uid="uid://jjy3vegiv1vv"]
+
+[ext_resource type="Script" uid="uid://dhcnr4wsx2wws" path="res://Primitives/actuators/Repulser.gd" id="1_5r2cw"]
+[ext_resource type="Script" uid="uid://bo0myrs7y5ipk" path="res://NodeEditor/NodeDefinition.gd" id="2_ki3kh"]
+
+[sub_resource type="Resource" id="Resource_ovkp0"]
+script = ExtResource("2_ki3kh")
+name = "Repulser"
+in_ports = 3
+code = "[inputs[0], inputs[1], inputs[2]]"
+metadata/_custom_type_script = "uid://bo0myrs7y5ipk"
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ki3kh"]
+shading_mode = 0
+albedo_color = Color(1, 1, 0, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_ovkp0"]
+material = SubResource("StandardMaterial3D_ki3kh")
+size = Vector3(0.6, 0.6, 1)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_buwki"]
+
+[node name="RepulserBlock" type="RigidBody3D" unique_id=1721697552]
+script = ExtResource("1_5r2cw")
+default_on = true
+max_interaction_range = 50.0
+node_data = SubResource("Resource_ovkp0")
+metadata/_custom_type_script = "uid://dhcnr4wsx2wws"
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1576334751]
+mesh = SubResource("BoxMesh_ovkp0")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=901304013]
+shape = SubResource("BoxShape3D_buwki")

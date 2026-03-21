@@ -1,0 +1,18 @@
+[gd_scene format=3 uid="uid://bv2o60q60m40b"]
+
+[ext_resource type="Script" uid="uid://db5eimbgglu5y" path="res://Primitives/Sensors/DistanceSensor.gd" id="1_v3ifb"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_v3ifb"]
+size = Vector3(0.6, 0.6, 1)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_xo1xv"]
+
+[node name="DistanceSensorBlock" type="RigidBody3D" unique_id=253053682]
+script = ExtResource("1_v3ifb")
+metadata/_custom_type_script = "uid://db5eimbgglu5y"
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1182763143]
+mesh = SubResource("BoxMesh_v3ifb")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1538621451]
+shape = SubResource("BoxShape3D_xo1xv")
