@@ -8,7 +8,6 @@ extends Node3D
 var current_slot: int = 0
 var ghost_block: MeshInstance3D
 
-
 func _ready():
 	ghost_block = MeshInstance3D.new()
 
@@ -18,7 +17,6 @@ func _ready():
 	add_child(ghost_block)
 
 	_update_ghost_mesh()
-
 
 func _unhandled_input(event: InputEvent):
 	if inventory.size() == 0:
@@ -33,7 +31,6 @@ func _unhandled_input(event: InputEvent):
 		elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
 			current_slot = (current_slot - 1 + inventory.size()) % inventory.size()
 			_update_ghost_mesh()
-
 
 func _update_ghost_mesh():
 	if inventory.size() == 0:
@@ -58,7 +55,6 @@ func _update_ghost_mesh():
 
 	temp_instance.queue_free()
 
-
 func _process(_delta):
 
 	var result = perform_raycast()
@@ -67,7 +63,6 @@ func _process(_delta):
 
 	if Input.is_action_just_pressed("ui_accept"):
 		place_block(result)
-
 
 func perform_raycast() -> Dictionary:
 
@@ -87,7 +82,6 @@ func perform_raycast() -> Dictionary:
 
 	return space_state.intersect_ray(query)
 
-
 # --- Snap any vector to the closest of the 6 grid directions ---
 func snap_to_axis(v: Vector3) -> Vector3:
 
@@ -101,7 +95,6 @@ func snap_to_axis(v: Vector3) -> Vector3:
 
 	else:
 		return Vector3(0,0,sign(v.z))
-
 
 # --- Build a perfectly aligned basis for grid rotation ---
 func build_grid_basis(master: BaseBlock, local_normal: Vector3) -> Basis:
@@ -118,7 +111,6 @@ func build_grid_basis(master: BaseBlock, local_normal: Vector3) -> Basis:
 	up = forward.cross(right).normalized()
 
 	return Basis(right, up, -forward)
-
 
 func update_ghost(result):
 
@@ -137,7 +129,6 @@ func update_ghost(result):
 		ghost_block.global_position = master_obj.to_global(snapped_local_pos)
 
 		ghost_block.global_transform.basis = master_obj.global_transform.basis
-
 
 		var temp_block = inventory[current_slot].instantiate()
 
@@ -160,7 +151,6 @@ func update_ghost(result):
 
 		ghost_block.show()
 
-
 func place_block(result: Dictionary):
 
 	if inventory.size() == 0:
@@ -175,7 +165,6 @@ func place_block(result: Dictionary):
 
 	new_block.global_position = ghost_block.global_position
 	new_block.global_rotation = ghost_block.global_rotation
-
 
 	if result and result.collider is BaseBlock:
 
@@ -192,7 +181,6 @@ func place_block(result: Dictionary):
 			new_block.setup_direction(local_normal)
 
 		master_obj.absorb_block(new_block)
-
 
 	# --- NODE EDITOR LINKING ---
 

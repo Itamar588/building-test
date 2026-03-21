@@ -24,7 +24,6 @@ size = Vector3(0.6, 0.6, 1)
 [node name="RepulserBlock" type="RigidBody3D" unique_id=1721697552]
 script = ExtResource("1_5r2cw")
 default_strength = 100.0
-default_on = true
 node_data = SubResource("Resource_ovkp0")
 metadata/_custom_type_script = "uid://dhcnr4wsx2wws"
 
