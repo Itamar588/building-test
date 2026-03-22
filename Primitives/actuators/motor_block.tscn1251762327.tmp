@@ -1,0 +1,22 @@
+[gd_scene format=3 uid="uid://c205dcp31dnw6"]
+
+[ext_resource type="Script" uid="uid://q45xnbcsftys" path="res://Primitives/actuators/Motor.gd" id="1_jxfe4"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_l6l0k"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_5ttg1"]
+material = SubResource("StandardMaterial3D_l6l0k")
+size = Vector3(0.6, 0.6, 1)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_pxohq"]
+
+[node name="MotorBlock" type="RigidBody3D" unique_id=2132423568]
+script = ExtResource("1_jxfe4")
+block_mass = null
+metadata/_custom_type_script = "uid://q45xnbcsftys"
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="." unique_id=548942517]
+mesh = SubResource("BoxMesh_5ttg1")
+
+[node name="CollisionShape3D2" type="CollisionShape3D" parent="." unique_id=1134875376]
+shape = SubResource("BoxShape3D_pxohq")

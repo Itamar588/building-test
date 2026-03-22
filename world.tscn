@@ -7,6 +7,7 @@
 [ext_resource type="PackedScene" uid="uid://hg3lc36d4gnw" path="res://NodeEditor/node_editor.tscn" id="4_aqk2v"]
 [ext_resource type="PackedScene" uid="uid://bv2o60q60m40b" path="res://Primitives/Sensors/distance_sensor_block.tscn" id="5_dwbse"]
 [ext_resource type="PackedScene" uid="uid://jjy3vegiv1vv" path="res://Primitives/actuators/repulser_block.tscn" id="6_pkg7o"]
+[ext_resource type="PackedScene" uid="uid://c205dcp31dnw6" path="res://Primitives/actuators/motor_block.tscn" id="7_gbfbk"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_gv5m4"]
 sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
@@ -53,7 +54,7 @@ mesh = SubResource("PlaneMesh_gv5m4")
 shape = SubResource("ConcavePolygonShape3D_f3sb7")
 
 [node name="BuildManager" parent="." unique_id=1519418771 node_paths=PackedStringArray("graph_editor") instance=ExtResource("1_f3sb7")]
-inventory = Array[PackedScene]([ExtResource("2_fj7yv"), ExtResource("5_dwbse"), ExtResource("6_pkg7o")])
+inventory = Array[PackedScene]([ExtResource("7_gbfbk"), ExtResource("5_dwbse"), ExtResource("6_pkg7o"), ExtResource("2_fj7yv")])
 ghost_material = SubResource("StandardMaterial3D_tlwt5")
 graph_editor = NodePath("../NodeEditor/GraphEdit")
 

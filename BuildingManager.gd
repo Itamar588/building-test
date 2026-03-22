@@ -162,46 +162,45 @@ func update_ghost(result):
 		ghost_block.show()
 
 func place_block(result: Dictionary):
-
 	if inventory.size() == 0:
 		return
 
 	var new_block = inventory[current_slot].instantiate()
-
 	if new_block == null:
 		return
 
+	# Add to tree so transforms work
 	get_tree().root.add_child(new_block)
 
+	# Match the ghost's placement
 	new_block.global_position = ghost_block.global_position
-	new_block.global_rotation = ghost_block.global_rotation
+	new_block.global_transform.basis = ghost_block.global_transform.basis
 
-	if result and result.collider is BaseBlock:
+	if result and result.has("block"):
+		# The 'collider' is the RigidBody (the master assembly)
+		var master_body : BaseBlock = result.collider
+		# The 'block' is the specific sub-part identified in perform_raycast()
+		var clicked_part : BaseBlock = result.block
 
-		var master_obj : BaseBlock = result.collider
-
+		# Calculate normal relative to the assembly's rotation
 		var local_normal = snap_to_axis(
-			master_obj.global_transform.basis.inverse() * result.normal
+			master_body.global_transform.basis.inverse() * result.normal
 		)
 
+		# Setup directional logic if needed
 		if new_block is DirectionalBlock:
-
-			new_block.global_transform.basis = build_grid_basis(master_obj, local_normal)
-
 			new_block.setup_direction(local_normal)
 
-		master_obj.absorb_block(new_block)
+		# --- THE CRITICAL FIX ---
+		# We pass the new block, the face hit, AND the specific part clicked.
+		# This allows FrontCluster to check if clicked_part == itself.
+		master_body.absorb_block(new_block, local_normal, clicked_part)
 
 	# --- NODE EDITOR LINKING ---
-
 	if new_block is BaseBlock and new_block.node_data and graph_editor:
-
 		var spawn_pos = Vector2(100, 100)
-
 		var g_node = graph_editor.create_dynamic_node(new_block.node_data, spawn_pos)
-
 		g_node.set_meta("physical_block", new_block)
-
 		new_block.set_meta("logic_node", g_node)
 func delete_block(result):
 
@@ -209,11 +208,10 @@ func delete_block(result):
 		return
 
 	var block : BaseBlock = result.block
-	var master = block.get_master_body()
 
-	# If it has a master, detach normally
-	if master:
+	# If the block's parent is a BaseBlock, it's a welded child
+	if block.get_parent() is BaseBlock:
 		block.disconnect_self()
 	else:
-		# This is the core block, delete the whole assembly
+		# This is the core block
 		block.queue_free()
