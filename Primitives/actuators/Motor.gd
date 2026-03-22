@@ -7,7 +7,6 @@ class_name MotorBlock
 var speed_rpm: float = 0.0
 var is_active: bool = false
 
-var rotation_angle := 0.0
 
 
 func _ready():
@@ -27,7 +26,6 @@ func _ready():
 	set_physics_process(true)
 
 
-## GraphEditor input
 func apply_input(value: Variant):
 
 	if value is Array and value.size() >= 2:
@@ -72,22 +70,43 @@ func _apply_cluster_rotation():
 			continue
 
 		var rotated_offset = rot_basis * offset
-
-		var new_pos = global_position + global_transform.basis * rotated_offset
-
-		block.global_position = new_pos
+		block.global_position = global_position + global_transform.basis * rotated_offset
 
 		var original_rot = cluster_local_rotations.get(block)
 		if original_rot == null:
 			continue
 
-		var new_basis = global_transform.basis * rot_basis * original_rot
-
-		block.global_basis = new_basis
+		block.global_basis = global_transform.basis * rot_basis * original_rot
 
 		# Move visuals and collisions with the logic block
 		if block.owned_mesh:
 			block.owned_mesh.global_transform = block.global_transform
-
 		if block.owned_shape:
 			block.owned_shape.global_transform = block.global_transform
+
+
+# --- HELPER FOR GHOST PLACEMENT ---
+## MotorBlock.gd
+
+func get_cluster_ghost_transform(target_block: BaseBlock, local_normal: Vector3) -> Transform3D:
+	# If we are looking at the motor itself and hitting the front face
+	if target_block == self:
+		var pos = to_global(Vector3.FORWARD) # Assuming 1 unit size
+		var rot = global_transform.basis * Basis(Vector3.FORWARD, rotation_angle)
+		return Transform3D(rot, pos)
+
+	# Get the target's 'resting' data (where it is when rotation is 0)
+	var target_rest_off = cluster_local_offsets.get(target_block, Vector3.ZERO)
+	var target_rest_rot = cluster_local_rotations.get(target_block, Basis.IDENTITY)
+	
+	# The new block's resting position is 1 unit offset in the local direction
+	var new_rest_off = target_rest_off + (target_rest_rot * local_normal)
+	
+	# Current spin state
+	var current_spin = Basis(Vector3.FORWARD, rotation_angle)
+	
+	# Combine: Motor World Basis * Current Spin * Target's Resting Orientation
+	var final_basis = global_transform.basis * current_spin * target_rest_rot
+	var final_pos = global_position + global_transform.basis * (current_spin * new_rest_off)
+	
+	return Transform3D(final_basis, final_pos)
