@@ -1,0 +1,25 @@
+[gd_scene format=3 uid="uid://cfl54hrw6bcu2"]
+
+[ext_resource type="Script" uid="uid://ddiwyyt766l8o" path="res://Primitives/passives/AeroBlock.gd" id="1_xvdr8"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_teokx"]
+albedo_color = Color(0, 0.13725491, 0.08235294, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_8bkvh"]
+material = SubResource("StandardMaterial3D_teokx")
+size = Vector3(1, 0.5, 1)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_25snk"]
+size = Vector3(1, 0.5, 1)
+
+[node name="AeroBlock" type="RigidBody3D" unique_id=667683268 node_paths=PackedStringArray("aero_mesh")]
+script = ExtResource("1_xvdr8")
+aero_mesh = NodePath("MeshInstance3D")
+face_bottom = true
+metadata/_custom_type_script = "uid://ddiwyyt766l8o"
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=154625413]
+mesh = SubResource("BoxMesh_8bkvh")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1599785232]
+shape = SubResource("BoxShape3D_25snk")

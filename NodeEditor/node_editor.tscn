@@ -18,7 +18,7 @@ metadata/_custom_type_script = "uid://bo0myrs7y5ipk"
 script = ExtResource("3_vifmx")
 name = "Printer"
 in_ports = 1
-code = "print(inputs[0])"
+code = "inputs[0]"
 metadata/_custom_type_script = "uid://bo0myrs7y5ipk"
 
 [sub_resource type="Resource" id="Resource_i5tdh"]
@@ -70,6 +70,22 @@ name = "And"
 in_ports = 2
 out_ports = 1
 code = "bool(inputs[0]) and bool(inputs[1])"
+metadata/_custom_type_script = "uid://bo0myrs7y5ipk"
+
+[sub_resource type="Resource" id="Resource_ki35e"]
+script = ExtResource("3_vifmx")
+name = "Sine"
+out_ports = 1
+code = "sin(time.get_ticks_msec() / 1000.0 * internal_value)"
+has_data = true
+metadata/_custom_type_script = "uid://bo0myrs7y5ipk"
+
+[sub_resource type="Resource" id="Resource_q34wg"]
+script = ExtResource("3_vifmx")
+name = "Multiply"
+in_ports = 2
+out_ports = 1
+code = "inputs[0] * inputs[1]"
 metadata/_custom_type_script = "uid://bo0myrs7y5ipk"
 
 [sub_resource type="GDScript" id="GDScript_vifmx"]
@@ -178,7 +194,7 @@ focus_mode = 2
 script = ExtResource("1_ne7bg")
 search_bar = NodePath("VBoxContainer/LineEdit")
 node_list = NodePath("VBoxContainer/ScrollContainer/VBoxContainer")
-node_definitions = Array[ExtResource("3_vifmx")]([SubResource("Resource_vifmx"), SubResource("Resource_qchtu"), SubResource("Resource_i5tdh"), SubResource("Resource_kc1hq"), SubResource("Resource_skfis"), SubResource("Resource_ssbin"), SubResource("Resource_eyaka"), SubResource("Resource_qb13b")])
+node_definitions = Array[ExtResource("3_vifmx")]([SubResource("Resource_vifmx"), SubResource("Resource_qchtu"), SubResource("Resource_i5tdh"), SubResource("Resource_kc1hq"), SubResource("Resource_skfis"), SubResource("Resource_ssbin"), SubResource("Resource_eyaka"), SubResource("Resource_qb13b"), SubResource("Resource_ki35e"), SubResource("Resource_q34wg")])
 
 [node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer" unique_id=879115072]
 layout_mode = 2

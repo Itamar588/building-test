@@ -56,12 +56,13 @@ func _physics_process(delta):
 
 
 func _apply_cluster_rotation():
-
 	var axis = Vector3.FORWARD
 	var rot_basis = Basis(axis, rotation_angle)
+	
+	# Get the master body (The RigidBody3D at the top)
+	var master = get_master_body()
 
 	for block in cluster_blocks:
-
 		if not is_instance_valid(block):
 			continue
 
@@ -69,24 +70,27 @@ func _apply_cluster_rotation():
 		if offset == null:
 			continue
 
-		var rotated_offset = rot_basis * offset
-		block.global_position = global_position + global_transform.basis * rotated_offset
+		# 1. Calculate the new local transform relative to the Master Body
+		var new_local_pos = rot_basis * offset
+		var original_rot = cluster_local_rotations.get(block, Basis.IDENTITY)
+		var new_local_rot = rot_basis * original_rot
 
-		var original_rot = cluster_local_rotations.get(block)
-		if original_rot == null:
-			continue
+		# 2. Apply to the logic block
+		block.position = new_local_pos
+		block.basis = new_local_rot
 
-		block.global_basis = global_transform.basis * rot_basis * original_rot
-
-		# Move visuals and collisions with the logic block
+		# 3. CRITICAL: Move the Shape and Mesh directly 
+		# Since they are children of the Master Body, we set their local transforms
 		if block.owned_mesh:
-			block.owned_mesh.global_transform = block.global_transform
+			block.owned_mesh.transform = block.transform
 		if block.owned_shape:
-			block.owned_shape.global_transform = block.global_transform
-
-
-# --- HELPER FOR GHOST PLACEMENT ---
-## MotorBlock.gd
+			block.owned_shape.transform = block.transform
+			
+	# 4. "Ping" the Physics Engine
+	# This forces the RigidBody to recalculate its internal collision bounds
+	if master:
+		# Setting a property to itself is a common trick to force a collision update
+		master.mass = master.mass
 
 func get_cluster_ghost_transform(target_block: BaseBlock, local_normal: Vector3) -> Transform3D:
 	# If we are looking at the motor itself and hitting the front face
